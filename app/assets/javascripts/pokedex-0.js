@@ -3,17 +3,36 @@ window.Pokedex.Models = {};
 window.Pokedex.Collections = {};
 
 Pokedex.Models.Pokemon = Backbone.Model.extend({
-  urlRoot: "/pokemon"
+  urlRoot: "/pokemon",
+  
+  toys: function () {
+    if(this._toys === undefined){
+      this._toys = new Pokedex.Collections.PokemonToys();
+    }
+
+    return this._toys;
+  },
+
+  parse: function (payload) {
+    if (payload.hasOwnProperty("toys")) {
+      this.toys().set(payload.toys)
+      delete payload.toys;
+    }
+    return payload;
+  }
 });
 
-Pokedex.Models.Toy = null; // WRITE ME IN PHASE 2
+Pokedex.Models.Toy = Backbone.Model.extend({
+});
 
 Pokedex.Collections.Pokemon = Backbone.Collection.extend({
   url: "/pokemon",
   model: Pokedex.Models.Pokemon
 })
 
-Pokedex.Collections.PokemonToys = null; // WRITE ME IN PHASE 2
+Pokedex.Collections.PokemonToys = Backbone.Collection.extend({
+  model: Pokedex.Models.Toy
+});
 
 window.Pokedex.Test = {
   testShow: function (id) {
@@ -45,6 +64,7 @@ window.Pokedex.RootView = function ($el) {
 
   this.$pokeList.on('click', 'li', this.selectPokemonFromList.bind(this));
   this.$el.on('submit', 'form.new-pokemon', this.submitPokemonForm.bind(this));
+  this.$pokeDetail.on('click', 'li.toy', this.selectToyFromList.bind(this));
 };
 
 $(function() {
